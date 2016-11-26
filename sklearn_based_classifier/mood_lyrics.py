@@ -15,8 +15,14 @@ from nltk import pos_tag
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import SGDClassifier
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.multiclass import OneVsRestClassifier
+#from sklearn.neural_network import BernoulliRBM
+from sklearn.svm import libsvm
+from sklearn.svm import LinearSVC
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.metrics import classification_report as clsr
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -170,6 +176,7 @@ def build_and_evaluate(X, y, classifier=SGDClassifier, outpath=None, verbose=Tru
     if verbose: print("Classification Report:\n")
 
     y_pred = model.predict(X_test)
+    #Evaluating the model
     print(clsr(y_test, y_pred, target_names=labels.classes_))
 
     if verbose: print("Building complete model and saving ...")
@@ -195,49 +202,51 @@ def show_most_informative_features(model, text=None, n=20):
     Note that this function will only work on linear models with coefs_
     """
     # Extract the vectorizer and the classifier from the pipeline
-    vectorizer = model.named_steps['vectorizer']
-    classifier = model.named_steps['classifier']
+    try:
+        vectorizer = model.named_steps['vectorizer']
+        classifier = model.named_steps['classifier']
 
-    # Check to make sure that we can perform this computation
-    if not hasattr(classifier, 'coef_'):
-        raise TypeError(
-            "Cannot compute most informative features on {} model.".format(
-                classifier.__class__.__name__
+        # Check to make sure that we can perform this computation
+        if not hasattr(classifier, 'coef_'):
+            raise TypeError(
+                "Cannot compute most informative features on {} model.".format(
+                    classifier.__class__.__name__
+                )
             )
+
+        if text is not None:
+            # Compute the coefficients for the text
+            tvec = model.transform([text]).toarray()
+        else:
+            # Otherwise simply use the coefficients
+            tvec = classifier.coef_
+
+        # Zip the feature names with the coefs and sort
+        coefs = sorted(
+            zip(tvec[0], vectorizer.get_feature_names()),
+            key=itemgetter(0), reverse=True
         )
 
-    if text is not None:
-        # Compute the coefficients for the text
-        tvec = model.transform([text]).toarray()
-    else:
-        # Otherwise simply use the coefficients
-        tvec = classifier.coef_
+        topn  = zip(coefs[:n], coefs[:-(n+1):-1])
 
-    # Zip the feature names with the coefs and sort
-    coefs = sorted(
-        zip(tvec[0], vectorizer.get_feature_names()),
-        key=itemgetter(0), reverse=True
-    )
+        # Create the output string to return
+        output = []
 
-    topn  = zip(coefs[:n], coefs[:-(n+1):-1])
+        # If text, add the predicted value to the output.
+        if text is not None:
+            output.append("\"{}\"".format(text))
+            output.append("Classified as: {}".format(model.predict([text])))
+            output.append("")
 
-    # Create the output string to return
-    output = []
+        # Create two columns with most negative and most positive features.
+        for (cp, fnp), (cn, fnn) in topn:
+            output.append(
+                "{:0.4f}{: >15}    {:0.4f}{: >15}".format(cp, fnp, cn, fnn)
+            )
 
-    # If text, add the predicted value to the output.
-    if text is not None:
-        output.append("\"{}\"".format(text))
-        output.append("Classified as: {}".format(model.predict([text])))
-        output.append("")
-
-    # Create two columns with most negative and most positive features.
-    for (cp, fnp), (cn, fnn) in topn:
-        output.append(
-            "{:0.4f}{: >15}    {:0.4f}{: >15}".format(cp, fnp, cn, fnn)
-        )
-
-    return "\n".join(output)
-
+        return "\n".join(output)
+    except:
+        return "\n TypeError: Cannot compute most informative features on THIS Classifier model."
 
 def movie_example():
     PATH = "model.pickle"
@@ -271,7 +280,7 @@ def get_song_attributes(train_file):
                 print ("skip header")
                 count+=1
             else:
-                if len(row) > 1:
+                if len(row) == 8:
                     rank.append(row[0])
                     song.append(row[1])
                     artist.append(row[2])
@@ -280,7 +289,6 @@ def get_song_attributes(train_file):
                     source.append(row[5])
                     label.append(row[6])
     return rank, song, artist, year, lyrics, source, label
-
 
 def mood_lyrics():
     PATH = "mood_model.pickle"
@@ -301,6 +309,22 @@ def mood_lyrics():
         model = pickle.load(f)
     print(show_most_informative_features(model))
 
+    print('DecisionTreeClassifier')
+    model = build_and_evaluate(X,y, outpath=PATH,classifier = DecisionTreeClassifier)
+    with open(PATH, 'rb') as f:
+        model = pickle.load(f)
+    print(show_most_informative_features(model))
 
+    print('AdaBoostClassifier')
+    model = build_and_evaluate(X, y, outpath=PATH, classifier=AdaBoostClassifier)
+    with open(PATH, 'rb') as f:
+        model = pickle.load(f)
+    print(show_most_informative_features(model))
+
+    print('KNeighborsClassifier')
+    model = build_and_evaluate(X, y, outpath=PATH, classifier=KNeighborsClassifier)
+    with open(PATH, 'rb') as f:
+        model = pickle.load(f)
+    print(show_most_informative_features(model))
 
 mood_lyrics()
