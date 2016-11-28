@@ -12,6 +12,8 @@ from nltk import WordNetLemmatizer
 from nltk import sent_tokenize
 from nltk import pos_tag
 
+from sklearn.neural_network import MLPClassifier
+from sklearn import svm
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
 from sklearn.naive_bayes import MultinomialNB
@@ -324,6 +326,18 @@ def mood_lyrics():
 
     print('KNeighborsClassifier')
     model = build_and_evaluate(X, y, outpath=PATH, classifier=KNeighborsClassifier)
+    with open(PATH, 'rb') as f:
+        model = pickle.load(f)
+    print(show_most_informative_features(model))
+
+    print('SVM SVC')
+    model = build_and_evaluate(X, y, outpath=PATH, classifier=svm.SVC)
+    with open(PATH, 'rb') as f:
+        model = pickle.load(f)
+    print(show_most_informative_features(model))
+
+    print('MLPClassifier')
+    model = build_and_evaluate(X, y, outpath=PATH, classifier=MLPClassifier)
     with open(PATH, 'rb') as f:
         model = pickle.load(f)
     print(show_most_informative_features(model))
