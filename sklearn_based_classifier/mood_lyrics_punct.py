@@ -322,12 +322,14 @@ def mood_lyrics():
         model = pickle.load(f)
     print(show_most_informative_features(model))
 
+    '''
     print('AdaBoostClassifier')
     model = build_and_evaluate(X, y, outpath=PATH, classifier=AdaBoostClassifier)
     with open(PATH, 'rb') as f:
         model = pickle.load(f)
     print(show_most_informative_features(model))
-
+    '''
+    
     print('KNeighborsClassifier')
     model = build_and_evaluate(X, y, outpath=PATH, classifier=KNeighborsClassifier)
     with open(PATH, 'rb') as f:
