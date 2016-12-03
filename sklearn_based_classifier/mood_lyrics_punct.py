@@ -19,6 +19,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.neural_network import BernoulliRBM
@@ -352,7 +353,7 @@ def mood_lyrics():
     print(show_most_informative_features(model))
     
     print('MaxEntropyClassifier')
-    model = build_and_evaluate(X, y, outpath=PATH, classifier=LogisticRegression(C= 1, solver= 'sag', multi_class='multinomial ))
+    model = build_and_evaluate(X, y, outpath=PATH, classifier=LogisticRegression(C= 1, solver= 'sag', multi_class='multinomial' ))
     with open(PATH, 'rb') as f:
         model = pickle.load(f)
     print(show_most_informative_features(model))
