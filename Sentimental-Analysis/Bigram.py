@@ -76,7 +76,7 @@ def load_topics(data_samples):
 print("Loading dataset...")
 t0 = time()
 dataset = pd.read_csv("test.csv",header=0)
-dataset=dataset[dataset['Label'] != '']
+dataset = dataset[dataset['Label'].str.len() > 0]
 #dataset = pd.read_csv("train.csv",header=0)
 print('Romantic')
 dataset_love=dataset[dataset['Label'] == 'Romantic']
