@@ -12,11 +12,13 @@ from nltk import WordNetLemmatizer
 from nltk import sent_tokenize
 from nltk import pos_tag
 
+from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.neural_network import BernoulliRBM
@@ -321,12 +323,13 @@ def mood_lyrics():
         model = pickle.load(f)
     print(show_most_informative_features(model))
 
-
+    '''
     print('AdaBoostClassifier')
     model = build_and_evaluate(X, y, outpath=PATH, classifier=AdaBoostClassifier)
     with open(PATH, 'rb') as f:
         model = pickle.load(f)
     print(show_most_informative_features(model))
+    '''
 
     print('KNeighborsClassifier')
     model = build_and_evaluate(X, y, outpath=PATH, classifier=KNeighborsClassifier)
@@ -341,4 +344,21 @@ def mood_lyrics():
         model = pickle.load(f)
     print(show_most_informative_features(model))
     '''
+    print('MLPClassifier')
+    model = build_and_evaluate(X, y, outpath=PATH, classifier=MLPClassifier(solver='lbgfs', alpha=0.001, hidden_layer_sizes=(100, 5), random_state=1))
+    with open(PATH, 'rb') as f:
+        model = pickle.load(f)
+    print(show_most_informative_features(model))
+    
+    print('ADABoostClassifier')
+    model = build_and_evaluate(X, y, outpath=PATH, classifier=AdaBoostClassifier(n_estimators=1000, learning_rate=0.01, algorithm='SAMME.R'))
+    with open(PATH, 'rb') as f:
+        model = pickle.load(f)
+    print(show_most_informative_features(model))
+    
+    print('MaxEntropyClassifier')
+    model = build_and_evaluate(X, y, outpath=PATH, classifier=LogisticRegression(C= 1, solver= 'sag', multi_class='multinomial' ))
+    with open(PATH, 'rb') as f:
+        model = pickle.load(f)
+    print(show_most_informative_features(model))
 mood_lyrics()
