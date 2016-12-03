@@ -19,6 +19,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.multiclass import OneVsRestClassifier
 #from sklearn.neural_network import BernoulliRBM
@@ -29,6 +30,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.metrics import classification_report as clsr
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cross_validation import train_test_split as tts
+
 
 
 output_logs=open(r'data/output.txt','w')
@@ -337,7 +339,19 @@ def mood_lyrics():
     print(show_most_informative_features(model))
 
     print('MLPClassifier')
-    model = build_and_evaluate(X, y, outpath=PATH, classifier=MLPClassifier)
+    model = build_and_evaluate(X, y, outpath=PATH, classifier=MLPClassifier(solver='lbgfs', alpha=0.001, hidden_layer_sizes=(100, 5), random_state=1))
+    with open(PATH, 'rb') as f:
+        model = pickle.load(f)
+    print(show_most_informative_features(model))
+    
+    print('ADABoostClassifier')
+    model = build_and_evaluate(X, y, outpath=PATH, classifier=AdaBoostClassifier(n_estimators=1000, learning_rate=0.01, algorithm='SAMME.R'))
+    with open(PATH, 'rb') as f:
+        model = pickle.load(f)
+    print(show_most_informative_features(model))
+    
+    print('MaxEntropyClassifier')
+    model = build_and_evaluate(X, y, outpath=PATH, classifier=LogisticRegression(C= 1, solver= 'sag', multi_class='multinomial ))
     with open(PATH, 'rb') as f:
         model = pickle.load(f)
     print(show_most_informative_features(model))
