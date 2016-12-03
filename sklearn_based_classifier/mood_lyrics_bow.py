@@ -351,7 +351,7 @@ def mood_lyrics():
     print(show_most_informative_features(model))
     
     print('MaxEntropyClassifier')
-    model = build_and_evaluate(X, y, outpath=PATH, classifier=LogisticRegression(C= 1, solver= 'sag', multi_class='multinomial ))
+    model = build_and_evaluate(X, y, outpath=PATH, classifier=LogisticRegression(C= 1, solver= 'sag', multi_class='multinomial' ))
     with open(PATH, 'rb') as f:
         model = pickle.load(f)
     print(show_most_informative_features(model))
