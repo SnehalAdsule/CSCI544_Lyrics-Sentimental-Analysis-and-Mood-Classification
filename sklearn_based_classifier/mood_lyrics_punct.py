@@ -340,7 +340,19 @@ def mood_lyrics():
     print(show_most_informative_features(model))
 
     print('MLPClassifier')
-    model = build_and_evaluate(X, y, outpath=PATH, classifier=MLPClassifier)
+    model = build_and_evaluate(X, y, outpath=PATH, classifier=MLPClassifier(solver='lbgfs', alpha=0.001, hidden_layer_sizes=(100, 5), random_state=1))
+    with open(PATH, 'rb') as f:
+        model = pickle.load(f)
+    print(show_most_informative_features(model))
+    
+    print('ADABoostClassifier')
+    model = build_and_evaluate(X, y, outpath=PATH, classifier=AdaBoostClassifier(n_estimators=1000, learning_rate=0.01, algorithm='SAMME.R'))
+    with open(PATH, 'rb') as f:
+        model = pickle.load(f)
+    print(show_most_informative_features(model))
+    
+    print('MaxEntropyClassifier')
+    model = build_and_evaluate(X, y, outpath=PATH, classifier=LogisticRegression(C= 1, solver= 'sag', multi_class='multinomial ))
     with open(PATH, 'rb') as f:
         model = pickle.load(f)
     print(show_most_informative_features(model))
